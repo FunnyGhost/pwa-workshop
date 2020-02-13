@@ -1,11 +1,12 @@
 {
   "name": "app",
   "short_name": "app",
-  "theme_color": "#1976d2",
+  "description": "This is a dummy Angular app which demonstrates a PWA's behaviour on different platforms.",
+  "theme_color": "#387ef5",
   "background_color": "#fafafa",
   "display": "standalone",
   "scope": "/",
-  "start_url": "/",
+  "start_url": "/?utm_source=home_screen",
   "icons": [
     {
       "src": "assets/icons/icon-72x72.png",
