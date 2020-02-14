@@ -34,11 +34,14 @@ export class AppComponent implements OnInit {
       icon: 'information-circle'
     }
   ];
+
+  Notification = Notification;
+
   loggedIn = false;
   dark = false;
-
   deferredPrompt;
   isInstallPromotionDisplayed = false;
+  showBackdrop = false;
 
   constructor(
     private menu: MenuController,
@@ -57,6 +60,7 @@ export class AppComponent implements OnInit {
     this.handleAppUpdate();
     await this.showIosInstallBanner();
     this.hijackInstallPrompt();
+    this.subscribeToWebPush();
   }
 
   private handleAppUpdate() {
@@ -127,21 +131,68 @@ export class AppComponent implements OnInit {
     this.isInstallPromotionDisplayed = true;
   }
 
+  private subscribeToWebPush() {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      this.swPush
+        .requestSubscription({
+          serverPublicKey: `BGAh7wx3JgSMafhN28acKawZc2thMkrv3fS-CUOVUsablsyrUpvX1CrFQdyz78uKEANgBy6Hc2cyN7FhOarwJsc`
+        })
+        .then(sub => {
+          console.log('subscribeToWebPush successful');
+          console.log(JSON.stringify(sub));
+        })
+        .catch(err => {
+          console.log('subscribeToWebPush error', err);
+        });
+    }
+  }
+
+  requestNotificationPermission() {
+    // We will use the backdrop to create user focus on permission dialog
+    this.showBackdrop = true;
+
+    if ('Notification' in window) {
+      Notification.requestPermission()
+        .then((permission: NotificationPermission) => {
+          this.showBackdrop = false;
+
+          if (permission === 'granted') {
+            console.log('Notification permission is granted');
+
+            // Since we have the permission now, let's subscribe to Web Push server
+            this.subscribeToWebPush();
+          } else {
+            console.log('Notification permission is not granted: ', permission);
+          }
+        })
+        .catch(err => {
+          console.log('Error on requestNotificationPermission', err);
+          this.showBackdrop = false;
+        });
+    }
+  }
   showInstallPrompt() {
+    this.showBackdrop = true;
+
     // Show the prompt
     this.deferredPrompt.prompt();
 
     // Wait for the user to respond to the prompt
-    this.deferredPrompt.userChoice.then(choiceResult => {
-      if (choiceResult.outcome === 'accepted') {
-        // Hide the install promotion UI as user just installed it
-        this.isInstallPromotionDisplayed = false;
-        console.log('User accepted the A2HS prompt');
-      } else {
-        console.log('User dismissed the A2HS prompt');
-      }
-      this.deferredPrompt = null;
-    });
+    this.deferredPrompt.userChoice
+      .then(choiceResult => {
+        if (choiceResult.outcome === 'accepted') {
+          // Hide the install promotion UI as user just installed it
+          this.isInstallPromotionDisplayed = false;
+          console.log('User accepted the A2HS prompt');
+        } else {
+          console.log('User dismissed the A2HS prompt');
+        }
+        this.deferredPrompt = null;
+        this.showBackdrop = false;
+      })
+      .catch(() => {
+        this.showBackdrop = false;
+      });
   }
 
   checkLoginStatus() {
