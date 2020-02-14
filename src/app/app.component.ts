@@ -37,11 +37,6 @@ export class AppComponent implements OnInit {
   loggedIn = false;
   dark = false;
 
-  private isIos = () => /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
-
-  private isInStandaloneMode = () =>
-    'standalone' in (window as any).navigator && (window as any).navigator.standalone;
-
   constructor(
     private menu: MenuController,
     private router: Router,
@@ -100,6 +95,14 @@ export class AppComponent implements OnInit {
       toast.present();
       this.storage.set('isBannerShown', true);
     }
+  }
+
+  private isIos() {
+    return /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+  }
+
+  private isInStandaloneMode() {
+    return 'standalone' in (window as any).navigator && (window as any).navigator.standalone;
   }
 
   checkLoginStatus() {
