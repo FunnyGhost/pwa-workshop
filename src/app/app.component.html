@@ -1,6 +1,5 @@
 <ion-app [class.dark-theme]="dark">
   <ion-split-pane contentId="main-content">
-
     <ion-menu contentId="main-content">
       <ion-header>
         <ion-toolbar>
@@ -8,19 +7,44 @@
         </ion-toolbar>
       </ion-header>
 
+      <ion-card
+        button
+        color="tertiary"
+        *ngIf="isInstallPromotionDisplayed"
+        (click)="showInstallPrompt()"
+      >
+        <ion-card-header>
+          <ion-card-title>Add to home screen</ion-card-title>
+        </ion-card-header>
+
+        <ion-item>
+          <ion-icon name="download" slot="start"></ion-icon>
+          <ion-label>1 click away</ion-label>
+          <ion-button color="tertiary" slot="end">INSTALL</ion-button>
+        </ion-item>
+
+        <ion-card-content>
+          By adding our app to your home screen you can enjoy browsing the app offline.
+        </ion-card-content>
+      </ion-card>
+
       <ion-content>
         <ion-list lines="none">
           <ion-list-header>
             Navigate
           </ion-list-header>
           <ion-menu-toggle autoHide="false" *ngFor="let p of appPages; let i = index">
-            <ion-item [routerLink]="p.url" routerLinkActive="active" routerDirection="root" detail="false">
+            <ion-item
+              [routerLink]="p.url"
+              routerLinkActive="active"
+              routerDirection="root"
+              detail="false"
+            >
               <ion-icon slot="start" [name]="p.icon"></ion-icon>
               <ion-label>
-                {{p.title}}
+                {{ p.title }}
               </ion-label>
             </ion-item>
-
           </ion-menu-toggle>
         </ion-list>
 
@@ -30,7 +54,12 @@
           </ion-list-header>
 
           <ion-menu-toggle autoHide="false">
-            <ion-item routerLink="/account" routerLinkActive="active" routerDirection="root" detail="false">
+            <ion-item
+              routerLink="/account"
+              routerLinkActive="active"
+              routerDirection="root"
+              detail="false"
+            >
               <ion-icon slot="start" name="person"></ion-icon>
               <ion-label>
                 Account
@@ -39,7 +68,12 @@
           </ion-menu-toggle>
 
           <ion-menu-toggle autoHide="false">
-            <ion-item routerLink="/support" routerLinkActive="active" routerDirection="root" detail="false">
+            <ion-item
+              routerLink="/support"
+              routerLinkActive="active"
+              routerDirection="root"
+              detail="false"
+            >
               <ion-icon slot="start" name="help"></ion-icon>
               <ion-label>
                 Support
@@ -55,7 +89,6 @@
               </ion-label>
             </ion-item>
           </ion-menu-toggle>
-
         </ion-list>
 
         <ion-list *ngIf="!loggedIn" lines="none">
@@ -64,7 +97,12 @@
           </ion-list-header>
 
           <ion-menu-toggle autoHide="false">
-            <ion-item routerLink="/login" routerLinkActive="active" routerDirection="root" detail="false">
+            <ion-item
+              routerLink="/login"
+              routerLinkActive="active"
+              routerDirection="root"
+              detail="false"
+            >
               <ion-icon slot="start" name="log-in"></ion-icon>
               <ion-label>
                 Login
@@ -73,7 +111,12 @@
           </ion-menu-toggle>
 
           <ion-menu-toggle autoHide="false">
-            <ion-item routerLink="/support" routerLinkActive="active" routerDirection="root" detail="false">
+            <ion-item
+              routerLink="/support"
+              routerLinkActive="active"
+              routerDirection="root"
+              detail="false"
+            >
               <ion-icon slot="start" name="help"></ion-icon>
               <ion-label>
                 Support
@@ -82,7 +125,12 @@
           </ion-menu-toggle>
 
           <ion-menu-toggle autoHide="false">
-            <ion-item routerLink="/signup" routerLinkActive="active" routerDirection="root" detail="false">
+            <ion-item
+              routerLink="/signup"
+              routerLinkActive="active"
+              routerDirection="root"
+              detail="false"
+            >
               <ion-icon slot="start" name="person-add"></ion-icon>
               <ion-label>
                 Signup
@@ -115,7 +163,5 @@
     </ion-menu>
 
     <ion-router-outlet id="main-content"></ion-router-outlet>
-
   </ion-split-pane>
-
 </ion-app>

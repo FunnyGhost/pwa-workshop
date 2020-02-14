@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { MenuController, ToastController, AlertController } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
 import { UserData } from './providers/user-data';
-import { SwUpdate, UpdateAvailableEvent } from '@angular/service-worker';
+import { SwUpdate, UpdateAvailableEvent, SwPush } from '@angular/service-worker';
 
 @Component({
   selector: 'app-root',
@@ -37,6 +37,9 @@ export class AppComponent implements OnInit {
   loggedIn = false;
   dark = false;
 
+  deferredPrompt;
+  isInstallPromotionDisplayed = false;
+
   constructor(
     private menu: MenuController,
     private router: Router,
@@ -44,6 +47,7 @@ export class AppComponent implements OnInit {
     private userData: UserData,
     private toast: ToastController,
     private swUpdate: SwUpdate,
+    private swPush: SwPush,
     private alertController: AlertController
   ) {}
 
@@ -52,6 +56,7 @@ export class AppComponent implements OnInit {
     this.listenForLoginEvents();
     this.handleAppUpdate();
     await this.showIosInstallBanner();
+    this.hijackInstallPrompt();
   }
 
   private handleAppUpdate() {
@@ -103,6 +108,40 @@ export class AppComponent implements OnInit {
 
   private isInStandaloneMode() {
     return 'standalone' in (window as any).navigator && (window as any).navigator.standalone;
+  }
+
+  private hijackInstallPrompt() {
+    window.addEventListener('beforeinstallprompt', e => {
+      // Prevent Chrome 76 and later from showing the mini-infobar
+      e.preventDefault();
+
+      // Stash the event so it can be triggered later.
+      this.deferredPrompt = e;
+
+      // Toggle the install promotion display
+      this.showInstallPromotion();
+    });
+  }
+
+  private showInstallPromotion() {
+    this.isInstallPromotionDisplayed = true;
+  }
+
+  showInstallPrompt() {
+    // Show the prompt
+    this.deferredPrompt.prompt();
+
+    // Wait for the user to respond to the prompt
+    this.deferredPrompt.userChoice.then(choiceResult => {
+      if (choiceResult.outcome === 'accepted') {
+        // Hide the install promotion UI as user just installed it
+        this.isInstallPromotionDisplayed = false;
+        console.log('User accepted the A2HS prompt');
+      } else {
+        console.log('User dismissed the A2HS prompt');
+      }
+      this.deferredPrompt = null;
+    });
   }
 
   checkLoginStatus() {
