@@ -7,6 +7,7 @@ www/
 *.log
 *.tmp
 *.pem
+.env
 *.tmp.*
 log.txt
 *.sublime-project
