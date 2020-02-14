@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
-import { MenuController } from '@ionic/angular';
+import { MenuController, ToastController } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
 import { UserData } from './providers/user-data';
 
@@ -36,16 +36,39 @@ export class AppComponent implements OnInit {
   loggedIn = false;
   dark = false;
 
+  private isIos = () => /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+
+  private isInStandaloneMode = () =>
+    'standalone' in (window as any).navigator && (window as any).navigator.standalone;
+
   constructor(
     private menu: MenuController,
     private router: Router,
     private storage: Storage,
     private userData: UserData,
-  ) {  }
+    private toast: ToastController
+  ) {}
 
   async ngOnInit() {
     this.checkLoginStatus();
     this.listenForLoginEvents();
+    await this.showIosInstallBanner();
+  }
+
+  private async showIosInstallBanner() {
+    // Put the functions for assertion here
+    const isBannerShown = await this.storage.get('isBannerShown');
+    if (this.isIos() && !this.isInStandaloneMode() && isBannerShown == null) {
+      const toast = await this.toast.create({
+        showCloseButton: true,
+        closeButtonText: 'OK',
+        cssClass: 'your-class-here-if-need-to-customize',
+        position: 'bottom',
+        message: `To install the app, tap "Share" icon below and select "Add to Home Screen".`
+      });
+      toast.present();
+      this.storage.set('isBannerShown', true);
+    }
   }
 
   checkLoginStatus() {
